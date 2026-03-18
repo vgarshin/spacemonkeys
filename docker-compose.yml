@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  pdf-ai:
+    build: .
+    image: pdf-ai:latest
+    container_name: pdf_ai_pipeline
+    working_dir: /home/jovyan/app
+    volumes:
+      - ./data:/home/jovyan/app/data:ro
+      - ./logs:/home/jovyan/app/logs
+      - ./cache:/home/jovyan/app/cache
+      - "/home/vgarshin/yadisk/EDU/SpaceLab/lab_spr_2026-Загрузить решение кейса-12791:/home/vgarshin/yadisk/EDU/SpaceLab/lab_spr_2026-Загрузить решение кейса-12791:ro"
+    environment:
+      - PYTHONPATH=/home/jovyan/app
+      - LOG_LEVEL=INFO
+    command: python -m scripts.run_pipeline_refactored
+    restart: on-failure

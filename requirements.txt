@@ -1,0 +1,22 @@
+# Core
+# python>=3.9  (Python version specification, not a package)
+
+# S3 / Object Storage
+boto3>=1.34.0
+
+# PDF processing
+pdf2image>=1.16.3
+Pillow>=10.0.0
+
+# OCR and LLM
+requests>=2.31.0
+openai>=1.0.0
+
+# Logging and configuration
+pyyaml>=6.0  # optional for YAML configs
+
+# Development
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
