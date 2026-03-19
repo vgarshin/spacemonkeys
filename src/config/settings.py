@@ -68,9 +68,22 @@ OCR_SLEEP = 1.1
 LLM_SLEEP = 1
 
 # Upload
-LOCAL_UPLOAD_PATH = Path(
-    "/home/vgarshin/yadisk/EDU/SpaceLab/" "lab_spr_2026-Загрузить решение кейса-12791"
-)
+LOCAL_UPLOAD_PATH = Path("/home/jovyan/app/upload")
+
+
+def discover_csv_key(upload_path: Path = LOCAL_UPLOAD_PATH) -> str:
+    """
+    Discover CSV file in the upload directory root.
+    Returns the basename of the first .csv file found,
+    or the default CSV_KEY if none.
+    """
+    if upload_path.exists():
+        csv_files = list(upload_path.glob("*.csv"))
+        if csv_files:
+            return csv_files[0].name
+    # Fallback to hardcoded default
+    return CSV_KEY
+
 
 # Logging
 LOG_LEVEL = "INFO"

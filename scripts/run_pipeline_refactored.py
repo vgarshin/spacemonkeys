@@ -23,11 +23,14 @@ from src.utils.csv_updater import (
     update_csv_rows,
     write_csv,
     upload_csv,
-    extract_grade_from_grading_result,
     extract_group_from_filename,
     group_mapping,
 )
-from src.config.settings import S3_CHECK_BUCKET, S3_RESULT_BUCKET, CSV_KEY
+from src.config.settings import (
+    S3_CHECK_BUCKET,
+    S3_RESULT_BUCKET,
+    discover_csv_key,
+)
 
 
 def map_pdf_key_to_identifier(pdf_key: str) -> str:
@@ -82,7 +85,7 @@ def main():
 
     # Update CSV with grades
     logger.info("Updating CSV with grades...")
-    csv_key = CSV_KEY
+    csv_key = discover_csv_key()
     rows = download_csv(csv_key, bucket=S3_CHECK_BUCKET)
     if rows is None:
         logger.error("Failed to download CSV, skipping CSV update.")

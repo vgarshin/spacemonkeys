@@ -7,9 +7,9 @@ WORKDIR /home/jovyan/app
 # Create cache directory with proper permissions
 RUN mkdir -p /home/jovyan/cache/images && chown -R 1000:1000 /home/jovyan/cache
 
-# Create parent directories for local data mount (with spaces)
-RUN mkdir -p "/home/vgarshin/yadisk/EDU/SpaceLab/lab_spr_2026-Загрузить решение кейса-12791" && \
-    chown -R 1000:1000 /home/vgarshin
+# Create upload directory (separate from data)
+RUN mkdir -p /home/jovyan/app/upload && \
+    chown -R 1000:1000 /home/jovyan/app/upload
 
 USER 1000
 

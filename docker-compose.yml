@@ -10,7 +10,7 @@ services:
       - ./data:/home/jovyan/app/data:ro
       - ./logs:/home/jovyan/app/logs
       - ./cache:/home/jovyan/app/cache
-      - "/home/vgarshin/yadisk/EDU/SpaceLab/lab_spr_2026-Загрузить решение кейса-12791:/home/vgarshin/yadisk/EDU/SpaceLab/lab_spr_2026-Загрузить решение кейса-12791:ro"
+      - ./upload:/home/jovyan/app/upload:ro
     environment:
       - PYTHONPATH=/home/jovyan/app
       - LOG_LEVEL=INFO

@@ -10,11 +10,11 @@ import csv
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.utils.s3_client import download_file_from_s3
-from src.config.settings import S3_CHECK_BUCKET, CSV_KEY
+from src.config.settings import S3_CHECK_BUCKET, discover_csv_key
 
 
 def main():
-    csv_key = CSV_KEY
+    csv_key = discover_csv_key()
     with tempfile.NamedTemporaryFile(suffix=".csv", delete=False, mode="w") as f:
         local_path = f.name
     try:

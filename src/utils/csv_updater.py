@@ -1,5 +1,6 @@
 """CSV updater for grading results."""
 
+import os
 import csv
 import logging
 import re
@@ -150,11 +151,13 @@ def extract_group_from_filename(filename: str) -> str:
     Extract group name from a file name using underscore splitting.
 
     Example: "Дети солнца 2.0_4960_assignsubmission_file" -> "Дети солнца 2.0"
+    Example: "4_5038_assignsubmission_file/Лапки.pdf" -> "4"
     """
+    # Split by path separator and take first component
+    path_parts = filename.split("/")
+    first_component = path_parts[-2]
     # Remove file extension if present
-    import os
-
-    base = os.path.splitext(filename)[0]
+    base = os.path.splitext(first_component)[0]
     # Split by underscore and take first part
     parts = base.split("_")
     return parts[0] if parts else ""

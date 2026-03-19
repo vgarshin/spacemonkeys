@@ -6,26 +6,27 @@ A Python project for capturing text from PDF files and processing text with AI a
 
 The project consists of four modules:
 
-1. **MODULE 1** – Upload files from local path to Yandex Object Storage bucket `cosmo-gsom-check-data`, preserving directory structure.
+1. **MODULE 1** – Upload files from local `upload/` folder to Yandex Object Storage bucket `cosmo-gsom-check-data`, preserving directory structure.
 2. **MODULE 2** – Download PDFs from object storage, convert them to images, and extract text using Yandex OCR.
 3. **MODULE 3** – First AI agent that uses a pre‑defined prompt to detect AI‑generated text and returns a score.
-4. **MODULE 4** – Second AI agent that estimates quality and grades text work, saving results to object storage `cosmo-gsom-result-data`.
+4. **MODULE 4** – Second AI agent that estimates quality and grades text work, updates a CSV file with grades, and saves results to object storage `cosmo-gsom-result-data`.
 
 ## Project Structure
 
 ```
-pdf_ai_project/
+.
 ├── src/
 │   ├── module1_upload/          # Upload local files to S3
 │   ├── module2_ocr/             # PDF → images → OCR
 │   ├── module3_ai_detect/       # AI‑generated text detection
 │   ├── module4_ai_grade/        # Text quality grading
-│   ├── utils/                   # Shared utilities (S3, OCR, LLM, logging)
+│   ├── utils/                   # Shared utilities (S3, OCR, LLM, logging, CSV updater)
 │   └── config/                  # Configuration settings
 ├── tests/                       # Unit tests
 ├── data/                        # Credentials and configuration JSONs
 ├── logs/                        # Application logs
 ├── cache/                       # Temporary images and caches
+├── upload/                      # Folder containing PDFs to upload and process
 ├── scripts/                     # Pipeline runner scripts
 ├── requirements.txt             # Python dependencies
 └── README.md
@@ -42,6 +43,7 @@ pip install -r requirements.txt
 ```
 
 4. Place your credentials in `data/credentials.json` (see `data/credentials.example.json`).
+5. Place PDF files to process in the `upload/` folder.
 
 ## Docker & Docker Compose
 
@@ -58,9 +60,9 @@ docker-compose up --build
 
 This will:
 - Build the image from `Dockerfile` (based on a custom Yandex Cloud base image)
-- Mount local directories (`data/`, `logs/`, `cache/`) into the container
+- Mount local directories (`data/`, `logs/`, `cache/`, `upload/`) into the container
 - Set environment variables (`PYTHONPATH`, `LOG_LEVEL`)
-- Execute the full pipeline (`scripts/run_pipeline.py`)
+- Execute the full pipeline (`scripts/run_pipeline_refactored.py`)
 - Restart the container on failure
 
 ### Docker Compose Configuration
@@ -71,6 +73,7 @@ The `docker-compose.yml` defines a single service `pdf-ai` with the following fe
   - `./data:/home/jovyan/app/data:ro` – read‑only credentials and configuration
   - `./logs:/home/jovyan/app/logs` – log output
   - `./cache:/home/jovyan/app/cache` – cached OCR images and intermediate files
+  - `./upload:/home/jovyan/app/upload:ro` – PDF files to process (read‑only)
   - External directory with case solutions (mounted read‑only)
 
 - **Environment**:
@@ -103,6 +106,7 @@ docker-compose run --rm pdf-ai /bin/bash
 - The container runs as user `1000` (non‑root) for security.
 - The pipeline expects credentials in `data/credentials.json` (mounted from the host).
 - Logs are written both to `logs/app.log` (host) and stdout.
+- The `upload/` folder must contain PDF files to be processed; sub‑directories are preserved.
 
 ### Add‑ons & Extensions
 
@@ -175,9 +179,13 @@ from src.module4_ai_grade.ai_grader import grade_text_quality
 grade = grade_text_quality(text)
 ```
 
+### CSV Grading Update
+
+The pipeline automatically downloads a CSV file from the S3 check bucket, updates it with extracted grades, and uploads the updated CSV to the result bucket. The CSV file is expected to have a `Group` column that matches the group names extracted from PDF filenames. The CSV updater utilities are located in `src/utils/csv_updater.py`.
+
 ### Running the full pipeline
 
-A sample pipeline script is provided in `scripts/run_pipeline.py`.
+A sample pipeline script is provided in `scripts/run_pipeline_refactored.py`.
 
 ## Logging
 
