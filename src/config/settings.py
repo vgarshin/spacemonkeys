@@ -1,6 +1,8 @@
 """Project settings and configuration."""
 
 import json
+import logging
+import tempfile
 from pathlib import Path
 
 # Project root
@@ -13,9 +15,36 @@ CACHE_DIR = PROJECT_ROOT / "cache"
 RAWOCR_DIR = CACHE_DIR / "raw_ocr"
 IMGS_CACHE_DIR = CACHE_DIR / "images"
 
-# Ensure directories exist
+# Ensure directories exist with fallback on permission error
+
+
+def ensure_dir(path: Path) -> bool:
+    """Try to create directory, return True if successful."""
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        return True
+    except PermissionError:
+        logging.warning(f"Permission denied for directory {path}, " "using fallback.")
+        return False
+    except OSError as e:
+        logging.warning(f"Failed to create directory {path}: {e}")
+        return False
+
+
+# Try to create cache directories
+if not ensure_dir(CACHE_DIR):
+    # Fallback to temporary directory
+    CACHE_DIR = Path(tempfile.gettempdir()) / "pdf_ai_cache"
+    RAWOCR_DIR = CACHE_DIR / "raw_ocr"
+    IMGS_CACHE_DIR = CACHE_DIR / "images"
+    logging.info(f"Using fallback cache directory: {CACHE_DIR}")
+
 for d in [DATA_DIR, LOGS_DIR, CACHE_DIR, RAWOCR_DIR, IMGS_CACHE_DIR]:
-    d.mkdir(parents=True, exist_ok=True)
+    try:
+        d.mkdir(parents=True, exist_ok=True)
+    except PermissionError:
+        # If still failing, ignore and hope for the best
+        pass
 
 # Credentials
 CREDENTIALS_PATH = DATA_DIR / "credentials.json"
