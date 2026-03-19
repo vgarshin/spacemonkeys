@@ -24,12 +24,14 @@ data/*.bak
 .env.test
 
 # Logs
-logs/
+logs/*
+!logs/.gitkeep
 *.log
 logfile.*
 
 # Cache and temporary files
-cache/
+cache/*
+!cache/.gitkeep
 *.cache
 *.tmp
 *.temp
@@ -64,11 +66,11 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-.pytest_cache/
+.pytest_cache/*
 .coverage
 htmlcov/
 .tox/
-.mypy_cache/
+.mypy_cache/*
 .dmypy.json
 dmypy.json
 
