@@ -121,3 +121,35 @@ def upload_directory_to_s3(
                 uploaded += 1
     logger.info(f"Uploaded {uploaded} files from {local_dir}")
     return uploaded
+
+
+def list_csv_keys(
+    bucket: Optional[str] = None,
+    cred_path: Optional[str] = None,
+) -> list[str]:
+    """
+    List all CSV file keys in the specified S3 bucket.
+
+    Args:
+        bucket: Bucket name, defaults to credentials bucket.
+        cred_path: Path to credentials JSON.
+
+    Returns:
+        List of S3 keys ending with '.csv' (sorted alphabetically).
+    """
+    try:
+        client = get_s3_client(cred_path)
+        if bucket is None:
+            bucket = load_credentials(cred_path)["s3"]["bucket"]
+        response = client.list_objects_v2(Bucket=bucket)
+        csv_keys = []
+        for obj in response.get("Contents", []):
+            key = obj["Key"]
+            if key.lower().endswith(".csv"):
+                csv_keys.append(key)
+        csv_keys.sort()
+        logger.info(f"Found {len(csv_keys)} CSV files in bucket {bucket}")
+        return csv_keys
+    except ClientError as e:
+        logger.error(f"Failed to list objects in bucket {bucket}: {e}")
+        return []

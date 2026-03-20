@@ -52,7 +52,6 @@ CREDENTIALS_PATH = DATA_DIR / "credentials.json"
 # S3 buckets
 S3_CHECK_BUCKET = "cosmo-gsom-check-data"
 S3_RESULT_BUCKET = "cosmo-gsom-result-data"
-CSV_KEY = "Grades-lab_spr_2026-Загрузить решение кейса--12791.csv"
 
 # Yandex Cloud
 with open(CREDENTIALS_PATH, "r", encoding="utf-8") as f:
@@ -73,16 +72,19 @@ LOCAL_UPLOAD_PATH = Path("/home/jovyan/app/upload")
 
 def discover_csv_key(upload_path: Path = LOCAL_UPLOAD_PATH) -> str:
     """
-    Discover CSV file in the upload directory root.
-    Returns the basename of the first .csv file found,
-    or the default CSV_KEY if none.
+    Discover CSV file in the S3 bucket (cosmo-gsom-check-data).
+    Returns the first .csv key found, or the default CSV_KEY if none.
+    The upload_path parameter is kept for backward compatibility but ignored.
     """
-    if upload_path.exists():
-        csv_files = list(upload_path.glob("*.csv"))
-        if csv_files:
-            return csv_files[0].name
-    # Fallback to hardcoded default
-    return CSV_KEY
+    from src.utils.s3_client import list_csv_keys
+
+    csv_keys = list_csv_keys(bucket=S3_CHECK_BUCKET)
+    if not csv_keys:
+        raise RuntimeError(
+            f"No CSV files found in bucket {S3_CHECK_BUCKET}. "
+            "Please upload a CSV file to the bucket."
+        )
+    return csv_keys[0]
 
 
 # Logging
